@@ -13,7 +13,19 @@ fn data() -> &'static [u64] {
     &[5, 5, 4, 4, 3, 3, 1]
 }
 
+fn process_chunk(data: &[u64]) {
+    match data {
+        [lhs, rhs] => println!("{}+{}={}", lhs, rhs, (lhs + rhs)),
+        [single] => println!("Unpaired value: {}", single),
+        [] => println!("Data stream complete"),
+        [..] => unreachable!("chunk size shold be at most 2"),
+    }
+}
+
 fn main() {
     // `stream` is an iterator of &[u64]
-    let mut stream = data().chunks(2);
+    let stream = data().chunks(2);
+    for chunck in stream {
+        process_chunk(chunck);
+    }
 }
