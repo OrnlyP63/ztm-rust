@@ -49,11 +49,56 @@ fn add(lhs: usize, rhs: usize) -> usize {
     lhs + rhs
 }
 
-fn main() {
-    let mut config = Configuration::new();
+macro_rules! mkconfig {
     // [section]
     // key=value;
     // key2=value2;
     // [next_section]
     // a=b;
+    (
+        $config:ident:
+        $(
+            [$section:ident]
+            $(
+                $key:ident = $value:expr;
+            )+
+        )+
+    ) => {
+        mod section {
+            $(
+                #[allow(warning)]
+                pub const $section: &'static str = stringify!($section);
+            )+
+        }
+        $(
+            $config.add_section(stringify!($section));
+            {
+                {
+                    $(
+                        #[allow(warning)]
+                        struct $key;
+                    )+
+                }
+                $(
+                    $config.insert(stringify!($section), stringify!($key), format!("{}", $value));
+                )+
+            }
+        )+
+    };
+}
+fn main() {
+    let mut config = Configuration::new();
+    mkconfig!(config:
+    [sample]
+    sum = add(2, 2);
+    farwell = "goodbye";
+    one = 1;
+    [section_2]
+    hello = "hi!";
+    );
+
+    dbg!(&config);
+
+    let section_2 = config.get_section("section_2");
+    dbg!(section_2);
 }

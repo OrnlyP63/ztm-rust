@@ -1,8 +1,8 @@
-use super::ClipError;
+use crate::domain::clip::ClipError;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub struct Password(Option<String>);
 
 impl Password {
@@ -23,5 +23,22 @@ impl Password {
 
     pub fn into_inner(self) -> Option<String> {
         self.0
+    }
+
+    pub fn has_password(&self) {
+        self.is_some()
+    }
+}
+
+impl Default for Password {
+    fn default() -> Self {
+        Self(None)
+    }
+}
+
+impl FromStr for Password {
+    type Err = ClipError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::new(s.to_string())
     }
 }

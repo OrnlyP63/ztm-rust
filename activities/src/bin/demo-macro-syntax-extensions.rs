@@ -1,3 +1,32 @@
+macro_rules! iterslice {
+    ($iterable:ident [ $index:literal ]) => {{
+        let mut iterable = $iterable.iter();
+        iterable.nth($index).expect("index out of bounds")
+    }};
+
+    ($iterable:ident [ $index:literal : ]) => {{
+        let iterable = $iterable.iter();
+        iterable.skip($index)
+    }};
+
+    ($iterable:ident [ : $index:literal ]) => {{
+        let iterable = $iterable.iter();
+        iterable.take($index)
+    }};
+
+    ($iterable:ident [ $start:literal : $end:literal ]) => {{
+        let iterable = $iterable.iter();
+
+        if $start > $end {
+            panic!("start index > end index");
+        }
+        if $start == $end {
+            iterable.skip($start).take(1)
+        } else {
+            iterable.skip($start).take($end - $start)
+        }
+    }};
+}
 // iterable[start:end-1]
 // iterable[1:3] -> items at index 1 and 2
 
@@ -10,7 +39,24 @@
 // iterable[:end-1]
 // iterable[:5] -> take everything up to (but not including) index 5
 
-fn main() {}
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5, 6];
+    let new_iter = {
+        let iterable = numbers.iter();
+        let (start, end) = (1, 5);
+
+        if start > end {
+            panic!("start index > end index");
+        }
+        if start == end {
+            iterable.skip(start).take(1)
+        } else {
+            iterable.skip(start).take(end - start)
+        }
+    }
+    .collect::<Vec<_>>();
+    dbg!(new_iter);
+}
 
 #[cfg(test)]
 mod test {
